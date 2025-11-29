@@ -1,7 +1,7 @@
 class Room {
   id = '';
   isPublic = true;
-  password = '';
+  hashedPassword = '';
   creatorId = '';
   targetWord = '';
 
@@ -13,7 +13,7 @@ class Room {
   updateProperties = (roomFields) => {
     this.id = roomFields.id ?? this.id;
     this.isPublic = roomFields.isPublic ?? this.isPublic;
-    this.password = roomFields.password ?? this.password;
+    this.hashedPassword = roomFields.hashedPassword ?? this.hashedPassword;
     this.creatorId = roomFields.creatorId ?? this.creatorId;
     this.targetWord = roomFields.targetWord ?? this.targetWord;
   }

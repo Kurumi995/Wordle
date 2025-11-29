@@ -1,5 +1,8 @@
 import { db } from '../db/db.js';
 import { Room } from '../models/room.js';
+import bcrypt from 'bcrypt';
+
+const SALT_ROUNDS = 10;
 
 const getRandomWord = async () => {
   try {
@@ -34,9 +37,14 @@ const add = async (roomInfo) => {
 
   const targetWord = await getRandomWord();
 
+  let hashedPassword = '';
+  if (roomInfo.password) {
+    hashedPassword = await bcrypt.hash(roomInfo.password, SALT_ROUNDS);
+  }
+
   const roomData = {
     isPublic: roomInfo.isPublic ?? true,
-    password: roomInfo.password ?? '',
+    hashedPassword: hashedPassword,
     creatorId: roomInfo.creatorId,
     targetWord: targetWord
   };
@@ -45,7 +53,6 @@ const add = async (roomInfo) => {
   return {
     id: insertedId.toString(),
     isPublic: roomData.isPublic,
-    password: roomData.password,
     creatorId: roomData.creatorId,
     targetWord: roomData.targetWord
   }
@@ -54,9 +61,14 @@ const add = async (roomInfo) => {
 const update = async (id, updateFields) => {
   if (!id) throw new Error('Null or undefined ID not allowed.');
 
-  if (updateFields.isPublic === false && !updateFields.password) {
+  if (updateFields.password) {
+    updateFields.hashedPassword = await bcrypt.hash(updateFields.password, SALT_ROUNDS);
+    delete updateFields.password;
+  }
+
+  if (updateFields.isPublic === false) {
     const existingRoom = await getById(id);
-    if (!existingRoom.password) {
+    if (!updateFields.hashedPassword && !existingRoom.hashedPassword) {
       throw new Error('Private rooms require a password.');
     }
   }
@@ -79,11 +91,27 @@ const deleteIt = async (id) => {
   return { deletedCount };
 }
 
+const verifyRoomPassword = async (roomId, password) => {
+  const room = await getById(roomId);
+  if (!room) {
+    throw new Error('Room not found.');
+  }
+  if (room.isPublic) {
+    return true;
+  }
+  if (!password) {
+    return false;
+  }
+  const roomDoc = await db.getFromCollectionById(db.ROOMS, roomId);
+  return await bcrypt.compare(password, roomDoc.hashedPassword);
+}
+
 export const roomService = {
   getAll, 
   getById,
   add,
   update,
-  deleteIt
+  deleteIt,
+  verifyRoomPassword
 }
 

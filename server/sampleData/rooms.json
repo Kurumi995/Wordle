@@ -1,23 +1,13 @@
 [
-  {
-    "isPublic": true,
-    "password": "",
-    "creatorId": "cwching"
-  },
-  {
-    "isPublic": true,
-    "password": "",
-    "creatorId": "user2"
-  },
-  {
-    "isPublic": false,
-    "password": "private123",
-    "creatorId": "user1"
-  },
-  {
-    "isPublic": false,
-    "password": "secret456",
-    "creatorId": "user3"
-  }
+    {
+        "_id": {
+          "$oid": "692b2b00e633de18cf3daa0c"
+        },
+        "isPublic": false,
+        "password": "123456",
+        "creatorId": "692b269ea9df4031fe63f73a",
+        "targetWord": "ROCKY",
+        "hashedPassword": "$2b$10$YwVnUGwXKiDWka639eDD5upT0FwqEor7HcobfCXdlGP4MDGv./yIi"
+      }
 ]
 

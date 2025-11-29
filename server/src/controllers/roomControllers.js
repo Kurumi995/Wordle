@@ -3,7 +3,11 @@ import { roomService } from '../services/roomService.js';
 const getRooms = async (req, res) => {
   try {
     const allRooms = await roomService.getAll();
-    res.json(allRooms);
+    const publicRooms = allRooms.map(room => {
+      const { hashedPassword, targetWord, ...publicData } = room;
+      return publicData;
+    });
+    res.json(publicRooms);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -19,7 +23,8 @@ const getRoom = async (req, res) => {
     if (!theRoom) {
       return res.status(404).json({ error: `Room with id ${id} not found.` });
     }
-    res.json(theRoom);
+    const { hashedPassword, targetWord, ...publicData } = theRoom;
+    res.json(publicData);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -53,7 +58,8 @@ const modifyRoom = async (req, res) => {
       return res.status(403).json({ error: 'Only the room creator can modify this room' });
     }
     const updatedRoom = await roomService.update(id, updateFields);
-    res.json(updatedRoom);
+    const { hashedPassword, targetWord, ...publicData } = updatedRoom;
+    res.json(publicData);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -79,11 +85,27 @@ const deleteRoom = async (req, res) => {
   }
 }
 
+const verifyPassword = async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+  
+  if (!id) {
+    return res.status(400).json({ error: 'Room id is required' });
+  }
+  
+  try {
+    const isValid = await roomService.verifyRoomPassword(id, password);
+    res.json({ valid: isValid });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 export const roomControllers = {
   getRooms,
   getRoom,
   addRoom,
   modifyRoom,
-  deleteRoom
+  deleteRoom,
+  verifyPassword
 }
-
