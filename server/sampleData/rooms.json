@@ -1,0 +1,23 @@
+[
+  {
+    "isPublic": true,
+    "password": "",
+    "creatorId": "user1"
+  },
+  {
+    "isPublic": true,
+    "password": "",
+    "creatorId": "user2"
+  },
+  {
+    "isPublic": false,
+    "password": "private123",
+    "creatorId": "user1"
+  },
+  {
+    "isPublic": false,
+    "password": "secret456",
+    "creatorId": "user3"
+  }
+]
+

@@ -4,6 +4,7 @@ let mongoClient = null;
 let theDb = null;
 
 const USERS = 'users';
+const ROOMS = 'rooms';
 
 const init = async () => {
   const mongoURI = process.env.MONGO_URI;
@@ -68,6 +69,7 @@ export const db = {
   deleteFromCollectionById,
   updateCollectionById,
   getFromCollectionByFieldValue,
-  USERS
+  USERS,
+  ROOMS
 }
 
