@@ -1,0 +1,18 @@
+[
+  {
+    "username": "player1",
+    "password": "password123",
+    "experience": 0
+  },
+  {
+    "username": "player2",
+    "password": "password123",
+    "experience": 50
+  },
+  {
+    "username": "admin",
+    "password": "admin123",
+    "experience": 500
+  }
+]
+
