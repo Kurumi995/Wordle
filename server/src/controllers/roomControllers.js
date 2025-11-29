@@ -26,7 +26,10 @@ const getRoom = async (req, res) => {
 }
 
 const addRoom = async (req, res) => {
-  const roomData = req.body;
+  const roomData = {
+    ...req.body,
+    creatorId: req.userId
+  };
   try {
     const result = await roomService.add(roomData);
     res.status(201).json(result);
@@ -42,10 +45,14 @@ const modifyRoom = async (req, res) => {
   }
   const updateFields = req.body;
   try {
-    const updatedRoom = await roomService.update(id, updateFields);
-    if (!updatedRoom) {
+    const room = await roomService.getById(id);
+    if (!room) {
       return res.status(404).json({ error: `Room with id ${id} not found.` });
     }
+    if (room.creatorId !== req.userId) {
+      return res.status(403).json({ error: 'Only the room creator can modify this room' });
+    }
+    const updatedRoom = await roomService.update(id, updateFields);
     res.json(updatedRoom);
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -58,10 +65,14 @@ const deleteRoom = async (req, res) => {
     return res.status(400).json({ error: 'Id is required' });
   }
   try {
-    const { deletedCount } = await roomService.deleteIt(id);
-    if (deletedCount === 0) {
+    const room = await roomService.getById(id);
+    if (!room) {
       return res.status(404).json({ error: `Room with id ${id} not found.` });
     }
+    if (room.creatorId !== req.userId) {
+      return res.status(403).json({ error: 'Only the room creator can delete this room' });
+    }
+    const { deletedCount } = await roomService.deleteIt(id);
     res.json({ deletedCount });
   } catch (error) {
     return res.status(500).json({ error: error.message });

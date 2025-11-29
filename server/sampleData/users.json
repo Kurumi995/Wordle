@@ -1,18 +1,9 @@
 [
-  {
-    "username": "player1",
-    "password": "password123",
-    "experience": 0
-  },
-  {
-    "username": "player2",
-    "password": "password123",
-    "experience": 50
-  },
-  {
-    "username": "admin",
-    "password": "admin123",
-    "experience": 500
-  }
+    {
+        "id": "692b269ea9df4031fe63f73a",
+        "username": "cwching",
+        "hashedPassword": "$2b$10$j3XMpFrTA6N7VJ5bMT5VPeRVd.utg51grMTTK7Xq6twGWpfTNGS1.",
+        "experience": 0
+    }
 ]
 

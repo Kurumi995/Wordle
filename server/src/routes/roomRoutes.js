@@ -1,13 +1,14 @@
 import express from 'express';
 import { roomControllers } from '../controllers/roomControllers.js';
+import { validateJWT } from '../middleware/validateJWT.js';
 
 const roomRouter = express.Router();
 
 roomRouter.get('/', roomControllers.getRooms);
 roomRouter.get('/:id', roomControllers.getRoom);
-roomRouter.post('/', roomControllers.addRoom);
-roomRouter.patch('/:id', roomControllers.modifyRoom);
-roomRouter.delete('/:id', roomControllers.deleteRoom);
+roomRouter.post('/', validateJWT, roomControllers.addRoom);
+roomRouter.patch('/:id', validateJWT, roomControllers.modifyRoom);
+roomRouter.delete('/:id', validateJWT, roomControllers.deleteRoom);
 
 export { roomRouter };
 

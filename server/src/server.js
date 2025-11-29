@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { userRouter } from './routes/userRoutes.js';
 import { roomRouter } from './routes/roomRoutes.js';
+import { authRouter } from './routes/authRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use('/users', userRouter);
 app.use('/rooms', roomRouter);
+app.use('/auth', authRouter);
 
 app.use(errorHandler);
 
