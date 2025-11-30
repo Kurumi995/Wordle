@@ -1,4 +1,5 @@
 import { roomService } from '../services/roomService.js';
+import { gameService } from '../services/gameService.js';
 
 const getRooms = async (req, res) => {
   try {
@@ -101,11 +102,42 @@ const verifyPassword = async (req, res) => {
   }
 }
 
+const submitGuess = async (req, res) => {
+  const { id } = req.params;
+  const { guess } = req.body;
+  
+  if (!id) {
+    return res.status(400).json({ error: 'Room id is required' });
+  }
+  
+  if (!guess || guess.length !== 5) {
+    return res.status(400).json({ error: 'Guess must be 5 letters' });
+  }
+  
+  try {
+    const room = await roomService.getById(id);
+    if (!room) {
+      return res.status(404).json({ error: `Room with id ${id} not found.` });
+    }
+    
+    const result = gameService.checkGuess(guess, room.targetWord);
+    const won = guess.toUpperCase() === room.targetWord.toUpperCase();
+    
+    res.json({
+      result,
+      won
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 export const roomControllers = {
   getRooms,
   getRoom,
   addRoom,
   modifyRoom,
   deleteRoom,
-  verifyPassword
+  verifyPassword,
+  submitGuess
 }

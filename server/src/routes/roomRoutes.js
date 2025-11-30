@@ -10,6 +10,7 @@ roomRouter.post('/', validateJWT, roomControllers.addRoom);
 roomRouter.patch('/:id', validateJWT, roomControllers.modifyRoom);
 roomRouter.delete('/:id', validateJWT, roomControllers.deleteRoom);
 roomRouter.post('/:id/verify', roomControllers.verifyPassword);
+roomRouter.post('/:id/guess', roomControllers.submitGuess);
 
 export { roomRouter };
 
