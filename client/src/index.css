@@ -329,3 +329,32 @@ body {
   opacity: 0.9;
 }
 
+.player-list {
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.player-list h3 {
+  margin-bottom: 10px;
+  color: #FF3399;
+}
+
+.player-list ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.player-list li {
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  color: #000;
+}
+
+.player-list li.current-player {
+  background: #FF3399;
+  color: white;
+  font-weight: bold;
+}
+

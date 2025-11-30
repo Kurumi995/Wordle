@@ -120,8 +120,7 @@ const submitGuess = async (req, res) => {
       return res.status(404).json({ error: `Room with id ${id} not found.` });
     }
     
-    const result = gameService.checkGuess(guess, room.targetWord);
-    const won = guess.toUpperCase() === room.targetWord.toUpperCase();
+    const { result, won } = gameService.checkGuess(guess, room.targetWord);
     
     res.json({
       result,
