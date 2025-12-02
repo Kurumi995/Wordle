@@ -40,6 +40,9 @@ const modifyUser = async (req, res) => {
   if (!id) {
     return res.status(400).json({ error: 'Id is required' });
   }
+  if (id !== req.userId) {
+    return res.status(403).json({ error: 'You can only modify your own profile' });
+  }
   const updateFields = req.body;
   try {
     const updatedUser = await userService.update(id, updateFields);
@@ -56,6 +59,9 @@ const deleteUser = async (req, res) => {
   const { id } = req.params;
   if (!id) {
     return res.status(400).json({ error: 'Id is required' });
+  }
+  if (id !== req.userId) {
+    return res.status(403).json({ error: 'You can only delete your own profile' });
   }
   try {
     const { deletedCount } = await userService.deleteIt(id);

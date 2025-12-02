@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { roomAPI } from '../api';
 import CreateRoomModal from './CreateRoomModal';
+import EditRoomModal from './EditRoomModal';
 import JoinRoomModal from './JoinRoomModal';
 import AlertModal from './AlertModal';
 import ConfirmModal from './ConfirmModal';
@@ -10,6 +11,7 @@ function RoomPage({ currentUser }) {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingRoom, setEditingRoom] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [confirmData, setConfirmData] = useState(null);
@@ -35,6 +37,17 @@ function RoomPage({ currentUser }) {
       setAlertMessage('Room created successfully!');
     } catch (err) {
       setAlertMessage('Failed to create room: ' + err.message);
+    }
+  };
+
+  const handleUpdateRoom = async (roomId, updateData) => {
+    try {
+      await roomAPI.update(roomId, updateData);
+      setEditingRoom(null);
+      loadRooms();
+      setAlertMessage('Room updated successfully!');
+    } catch (err) {
+      setAlertMessage('Failed to update room: ' + err.message);
     }
   };
 
@@ -95,12 +108,20 @@ function RoomPage({ currentUser }) {
               </button>
               
               {room.creatorId === currentUser.id && (
-                <button 
-                  className="btn"
-                  onClick={() => handleDeleteRoom(room.id)}
-                >
-                  Delete
-                </button>
+                <>
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => setEditingRoom(room)}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="btn"
+                    onClick={() => handleDeleteRoom(room.id)}
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -117,6 +138,14 @@ function RoomPage({ currentUser }) {
         <CreateRoomModal
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreateRoom}
+        />
+      )}
+
+      {editingRoom && (
+        <EditRoomModal
+          room={editingRoom}
+          onClose={() => setEditingRoom(null)}
+          onUpdate={handleUpdateRoom}
         />
       )}
 

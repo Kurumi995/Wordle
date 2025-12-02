@@ -56,6 +56,19 @@ export const userAPI = {
     const response = await fetch(`${API_BASE}/users/${id}`);
     if (!response.ok) throw new Error('Failed to fetch user');
     return response.json();
+  },
+
+  update: async (id, userData) => {
+    const response = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(userData)
+    });
+    if (!response.ok) throw new Error('Failed to update user');
+    return response.json();
   }
 };
 

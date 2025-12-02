@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { userAPI } from '../api';
+import EditProfileModal from './EditProfileModal';
 
-function UserPage({ currentUser }) {
+function UserPage({ currentUser, onUserUpdate }) {
   const [userDetails, setUserDetails] = useState(null);
-  const [allUsers, setAllUsers] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     loadUserDetails();
-    loadAllUsers();
   }, []);
 
   const loadUserDetails = async () => {
@@ -19,19 +19,32 @@ function UserPage({ currentUser }) {
     }
   };
 
-  const loadAllUsers = async () => {
+  const handleUpdateProfile = async (updateData) => {
     try {
-      const data = await userAPI.getAll();
-      setAllUsers(data);
+      await userAPI.update(currentUser.id, updateData);
+      setShowEditModal(false);
+      loadUserDetails();
+      
+      if (updateData.username) {
+        localStorage.setItem('username', updateData.username);
+        if (onUserUpdate) {
+          onUserUpdate({ ...currentUser, username: updateData.username });
+        }
+      }
     } catch (err) {
-      console.error('Failed to load users:', err);
+      console.error('Failed to update profile:', err);
     }
   };
 
   return (
     <div>
       <div className="card">
-        <h2>My Profile</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ margin: 0 }}>My Profile</h2>
+          <button className="btn" onClick={() => setShowEditModal(true)}>
+            Edit Profile
+          </button>
+        </div>
         {userDetails && (
           <div className="user-info">
             <div className="user-avatar">
@@ -46,26 +59,13 @@ function UserPage({ currentUser }) {
         )}
       </div>
 
-      <div className="card">
-        <h2>All Users</h2>
-        <div className="room-list">
-          {allUsers.map((user) => (
-            <div key={user.id} className="room-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div className="user-avatar" style={{ width: '40px', height: '40px', fontSize: '1.2em' }}>
-                  {user.username.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, color: '#000' }}>{user.username}</h3>
-                  <p style={{ margin: '5px 0', color: '#666' }}>
-                    Experience: {user.experience}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {showEditModal && userDetails && (
+        <EditProfileModal
+          user={userDetails}
+          onClose={() => setShowEditModal(false)}
+          onUpdate={handleUpdateProfile}
+        />
+      )}
     </div>
   );
 }

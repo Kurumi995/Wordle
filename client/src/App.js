@@ -6,7 +6,7 @@ import UserPage from './components/UserPage';
 import RoomPage from './components/RoomPage';
 import GamePage from './components/GamePage';
 
-function MainLayout({ currentUser, onLogout }) {
+function MainLayout({ currentUser, onLogout, onUserUpdate }) {
   const [currentPage, setCurrentPage] = useState('user');
   const navigate = useNavigate();
 
@@ -40,7 +40,7 @@ function MainLayout({ currentUser, onLogout }) {
       </nav>
 
       <Routes>
-        <Route path="/" element={<UserPage currentUser={currentUser} />} />
+        <Route path="/" element={<UserPage currentUser={currentUser} onUserUpdate={onUserUpdate} />} />
         <Route path="/rooms" element={<RoomPage currentUser={currentUser} />} />
         <Route path="/game" element={<GamePage currentUser={currentUser} />} />
         <Route path="*" element={<Navigate to="/" />} />
@@ -68,13 +68,21 @@ function App() {
     setCurrentUser(null);
   };
 
+  const handleUserUpdate = (updatedUser) => {
+    setCurrentUser(updatedUser);
+  };
+
   if (!currentUser) {
     return <Login onLogin={handleLogin} />;
   }
 
   return (
     <Router>
-      <MainLayout currentUser={currentUser} onLogout={handleLogout} />
+      <MainLayout 
+        currentUser={currentUser} 
+        onLogout={handleLogout}
+        onUserUpdate={handleUserUpdate}
+      />
     </Router>
   );
 }
