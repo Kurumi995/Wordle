@@ -119,8 +119,8 @@ wordle/
 - `GET /users` - Get all users
 - `GET /users/:id` - Get user by ID
 - `POST /users` - Create new user
-- `PATCH /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
+- `PATCH /users/:id` - Update user (requires JWT)
+- `DELETE /users/:id` - Delete user (requires JWT)
 
 ### Rooms
 - `GET /rooms` - Get all rooms
