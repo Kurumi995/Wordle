@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { db } from '../db/db.js';
 import { User } from '../models/user.js';
 import jwt from 'jsonwebtoken';
+import fs from 'fs';
 
 const SALT_ROUNDS = 10;
 
@@ -28,8 +29,11 @@ const registerUser = async (username, password) => {
 }
 
 const loadKeys = () => {
-  jwtPrivateKey = process.env.JWT_PRIVATE_KEY;
-  jwtPublicKey = process.env.JWT_PUBLIC_KEY;
+  const privPath = process.env.JWT_PRIVATE_KEY_PATH;
+  const pubPath  = process.env.JWT_PUBLIC_KEY_PATH;
+
+  jwtPrivateKey = privPath ? fs.readFileSync(privPath, 'utf8') : process.env.JWT_PRIVATE_KEY;
+  jwtPublicKey  = pubPath  ? fs.readFileSync(pubPath, 'utf8')  : process.env.JWT_PUBLIC_KEY;
 }
 
 const generateToken = (userId) => {
@@ -62,4 +66,3 @@ export const authService = {
   registerUser, 
   validateLogin
 }
-

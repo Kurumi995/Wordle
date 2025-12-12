@@ -1,10 +1,14 @@
 import jwt from 'jsonwebtoken';
+import fs from 'fs'
 
 let jwtSecretKey, jwtPublicKey;
 
 const loadKeys = () => {
-  jwtSecretKey = process.env.JWT_PRIVATE_KEY;
-  jwtPublicKey = process.env.JWT_PUBLIC_KEY;
+  const privPath = process.env.JWT_PRIVATE_KEY_PATH;
+  const pubPath  = process.env.JWT_PUBLIC_KEY_PATH;
+
+  jwtSecretKey = privPath ? fs.readFileSync(privPath, 'utf8') : process.env.JWT_PRIVATE_KEY;
+  jwtPublicKey  = pubPath  ? fs.readFileSync(pubPath, 'utf8')  : process.env.JWT_PUBLIC_KEY;
 }
 
 const validateJWT = (req, res, next) => {
@@ -30,4 +34,3 @@ const validateJWT = (req, res, next) => {
 }
 
 export { validateJWT };
-
