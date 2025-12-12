@@ -12,7 +12,7 @@ import { initGameSocket } from './socket/gameSocket.js';
 
 dotenv.config();
 
-const serverPath = process.env.SERVER_DIR || import.meta.dirname;
+const serverPath = process.env.SERVER_DIR || path.resolve(import.meta.dirname, '..');
 const port = process.env.PORT || 6790;
 const app = express();
 const server = http.createServer(app);
@@ -36,14 +36,14 @@ app.use('/api/auth', authRouter);
 app.use(
   express.static(
     path.join(
-      serverPath, '../client/build')
+      serverPath, 'client/build')
 ));
 
 
 app.get('/', (req, res) => {
   res.sendFile(
     path.join(
-      serverPath, '../client/build/index.html'));
+      serverPath, 'client/build/index.html'));
 });
 
 app.use(errorHandler);
