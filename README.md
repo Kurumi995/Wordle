@@ -1,158 +1,186 @@
-# Multiplayer Wordle Game
+# Real-time Multiplayer Wordle
 
-A real-time multiplayer Wordle game where players can create rooms and take turns guessing five-letter words together.
+A real-time multiplayer Wordle game: users can create rooms, join with friends, and take turns guessing a five-letter word together.
 
-## Features
+## Repo structure
 
-- User authentication with JWT
-- Create public or private game rooms
-- Real-time multiplayer gameplay using Socket.io
-- Turn-based word guessing
-- Color-coded feedback (correct, present, absent)
-- Random word generation for each game
-- Player management and room status tracking
-
-## Tech Stack
-
-### Backend
-- Node.js & Express
-- MongoDB
-- Socket.io
-- bcrypt for password hashing
-- JWT for authentication
-
-### Frontend
-- React.js
-- React Router
-- Socket.io-client
-- Custom UI components
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- MongoDB (local or remote instance)
-- npm or yarn
-
-## Installation
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd wordle
-```
-
-### 2. Setup Environment Variables
-
-Create a `.env` file in the `server` directory:
-```
-MONGO_URI=mongodb://localhost:27017/wordle
-PORT=6790
-JWT_SECRET=your_jwt_secret_here
-```
-
-### 3. Install Dependencies
-
-Backend:
-```bash
-cd server
-npm install
-```
-
-Frontend:
-```bash
-cd client
-npm install
-```
-
-## Running the Application
-
-### 1. Start MongoDB
-Make sure your MongoDB server is running.
-
-### 2. Start the Backend Server
-```bash
-cd server
-npm start
-```
-Server will run on `http://localhost:6790`
-
-### 3. Start the Frontend Client
-```bash
-cd client
-npm start
-```
-Client will run on `http://localhost:3000`
-
-## Project Structure
+This project is organized as a backend plus a React client that lives inside the server folder:
 
 ```
 wordle/
-├── server/
-│   ├── src/
-│   │   ├── controllers/      
-│   │   ├── db/               
-│   │   ├── middleware/       
-│   │   ├── models/           
-│   │   ├── routes/           
-│   │   ├── services/         
-│   │   ├── socket/           
-│   │   └── server.js         
-│   ├── sampleData/           
-│   └── package.json
-│
-└── client/
-    ├── src/
-    │   ├── components/       
-    │   ├── api.js            
-    │   ├── App.js            
-    │   └── index.css         
-    └── package.json
+|  server/                 # Node/Express API + Socket.IO server
+|  |  src/                 # server source
+|  |  client/              # React app (CRA)
 ```
 
-## API Endpoints
+## Tech stack
 
-### Authentication
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
+- Backend: Node.js, Express, MongoDB, Socket.IO, JWT (RS256), bcrypt
+- Frontend: React (CRA), react-router, socket.io-client
+
+## Requirements
+
+- Node.js >= 18
+- npm
+- MongoDB (local or hosted, e.g. MongoDB Atlas)
+
+## Environment variables
+
+Create `wordle/server/.env` (or set these vars in your deployment environment):
+
+```
+MONGO_URI=mongodb://127.0.0.1:27017
+DB_NAME=wordle
+PORT=6790
+JWT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----
+JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----
+```
+
+Supported server environment variables:
+
+- `MONGO_URI` (required): Mongo connection string (local or Atlas)
+- `DB_NAME` (required): Mongo database name
+- `PORT` (optional): server port (default `6790`)
+- `JWT_PRIVATE_KEY` (required unless `JWT_PRIVATE_KEY_PATH` is used): RSA private key (PEM)
+- `JWT_PUBLIC_KEY` (required unless `JWT_PUBLIC_KEY_PATH` is used): RSA public key (PEM)
+- `JWT_PRIVATE_KEY_PATH` (optional): path to RSA private key file
+- `JWT_PUBLIC_KEY_PATH` (optional): path to RSA public key file
+- `SERVER_DIR` (optional): override the directory used to serve the built React app (defaults to the `server/` directory)
+
+
+## JWT keys (RS256)
+
+You must provide an RSA keypair (do not commit your private key). Example (OpenSSL):
+
+```bash
+openssl genpkey -algorithm RSA -out jwtRS256.key -pkeyopt rsa_keygen_bits:2048
+openssl rsa -in jwtRS256.key -pubout -out jwtRS256.key.pub
+```
+
+Then either:
+
+- paste PEM contents into `JWT_PRIVATE_KEY` / `JWT_PUBLIC_KEY`, or
+- set `JWT_PRIVATE_KEY_PATH` / `JWT_PUBLIC_KEY_PATH` to point to those files.
+
+## Third-party services / accounts
+
+- MongoDB: you need a MongoDB instance (local MongoDB or a hosted cluster like MongoDB Atlas). No other paid accounts are required.
+- Random word source: the server tries `random-word-api.vercel.app` (no API key). If it fails, it falls back to a small built-in word list.
+
+## Install
+
+```bash
+cd wordle/server
+npm install
+
+cd client
+npm install
+```
+
+## Run (local)
+
+### 1) Start MongoDB
+
+Make sure MongoDB is running and your `MONGO_URI`/`DB_NAME` are correct.
+
+### 2) Start the backend
+
+```bash
+cd wordle/server
+npm start
+```
+
+Server: `http://localhost:6790`
+
+### Option A (simplest): run server only (serves the built client)
+
+Build the client once, then start the server:
+
+```bash
+cd wordle/server/client
+npm run build
+
+cd ../
+npm start
+```
+
+Open: `http://localhost:6790`
+
+### Option B: run React dev server separately (UI development)
+
+```bash
+cd wordle/server/client
+npm start
+```
+
+Client: `http://localhost:3000` (requires client-to-server configuration such as a proxy or `REACT_APP_API_BASE`)
+
+## Build (production)
+
+Build the React app and serve it from the Node server:
+
+```bash
+cd wordle/server/client
+npm run build
+
+cd ../
+npm start
+```
+
+Then open: `http://localhost:6790`
+
+## Tests
+
+```bash
+cd wordle/server
+npm test
+npm run coverage
+```
+
+## Deploy
+
+You can deploy this as a single Node service that serves the API, Socket.IO, and the built React app:
+
+1. Provision MongoDB (Atlas or similar) and set `MONGO_URI` + `DB_NAME`.
+2. Configure JWT keypair via env vars (`JWT_PRIVATE_KEY` / `JWT_PUBLIC_KEY`) or key paths.
+3. Build the client (`npm run build` under `wordle/server/client`).
+4. Start the server (`npm start` under `wordle/server`).
+
+
+## API endpoints
+
+All REST endpoints are under `/api`:
+
+### Auth
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
 ### Users
-- `GET /users` - Get all users
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create new user
-- `PATCH /users/:id` - Update user (requires JWT)
-- `DELETE /users/:id` - Delete user (requires JWT)
+- `GET /api/users`
+- `GET /api/users/:id`
+- `POST /api/users`
+- `PATCH /api/users/:id` (JWT required)
+- `DELETE /api/users/:id` (JWT required)
 
 ### Rooms
-- `GET /rooms` - Get all rooms
-- `GET /rooms/:id` - Get room by ID
-- `POST /rooms` - Create new room (requires JWT)
-- `PATCH /rooms/:id` - Update room (requires JWT, creator only)
-- `DELETE /rooms/:id` - Delete room (requires JWT, creator only)
-- `POST /rooms/:id/verify` - Verify room password
+- `GET /api/rooms`
+- `GET /api/rooms/:id`
+- `POST /api/rooms` (JWT required)
+- `PATCH /api/rooms/:id` (JWT required, creator only)
+- `DELETE /api/rooms/:id` (JWT required, creator only)
+- `POST /api/rooms/:id/verify`
+- `POST /api/rooms/:id/guess`
 
-## Socket.io Events
+## Socket.IO events
 
-### Client to Server
-- `joinGame` - Join a game room
-- `submitGuess` - Submit a word guess
-- `disconnect` - Leave the game
+### Client -> Server
+- `joinGame`
+- `submitGuess`
 
-### Server to Client
-- `gameState` - Current game state update
-- `playerJoined` - New player joined notification
-- `playerLeft` - Player left notification
-- `gameOver` - Game ended notification
-- `error` - Error message
-
-## Game Rules
-
-1. Players take turns guessing a five-letter word
-2. Each game allows up to 6 guesses
-3. After each guess, letters are colored:
-   - **Pink**: Letter is correct and in the right position
-   - **White**: Letter is in the word but in the wrong position
-   - **Gray**: Letter is not in the word
-4. The game ends when:
-   - A player guesses the word correctly (win)
-   - All 6 guesses are used (loss)
+### Server -> Client
+- `gameState`
+- `playerJoined`
+- `playerLeft`
+- `gameOver`
+- `error`
 
