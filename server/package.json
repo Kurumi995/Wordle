@@ -4,8 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch src/server.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "start": "node --watch src/server.js",
+    "coverage": "npm test -- --coverage"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,14 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "jest": "^30.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.3.0",
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
   }
 }

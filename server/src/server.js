@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { userRouter } from './routes/userRoutes.js';
 import { roomRouter } from './routes/roomRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
@@ -12,43 +13,56 @@ import { initGameSocket } from './socket/gameSocket.js';
 
 dotenv.config();
 
-const serverPath = process.env.SERVER_DIR || path.resolve(import.meta.dirname, '..');
-const port = process.env.PORT || 6790;
-const app = express();
-const server = http.createServer(app);
+export const createApp = ({ serverPath } = {}) => {
+  const resolvedServerPath = serverPath || process.env.SERVER_DIR || path.resolve(import.meta.dirname, '..');
+  const app = express();
 
-app.use(cors());
-app.use(express.json());
+  app.use(cors());
+  app.use(express.json());
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+  app.use('/api/users', userRouter);
+  app.use('/api/rooms', roomRouter);
+  app.use('/api/auth', authRouter);
+
+  app.use(express.static(path.join(resolvedServerPath, 'client/build')));
+
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(resolvedServerPath, 'client/build/index.html'));
+  });
+
+  app.use(errorHandler);
+
+  return app;
+};
+
+export const createServer = ({ app, initSocket = true } = {}) => {
+  const resolvedApp = app || createApp();
+  const server = http.createServer(resolvedApp);
+
+  const io = new Server(server, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST']
+    }
+  });
+
+  if (initSocket) {
+    initGameSocket(io);
   }
-});
 
-initGameSocket(io);
+  return { app: resolvedApp, server, io };
+};
 
-app.use('/api/users', userRouter);
-app.use('/api/rooms', roomRouter);
-app.use('/api/auth', authRouter);
+export const startServer = ({ port, serverPath, initSocket = true } = {}) => {
+  const resolvedPort = port || process.env.PORT || 6790;
+  const { app, server, io } = createServer({ app: createApp({ serverPath }), initSocket });
+  server.listen(resolvedPort, () => {
+    console.log(`Wordle server running on port ${resolvedPort}`);
+  });
+  return { app, server, io };
+};
 
-app.use(
-  express.static(
-    path.join(
-      serverPath, 'client/build')
-));
-
-
-app.get('/', (req, res) => {
-  res.sendFile(
-    path.join(
-      serverPath, 'client/build/index.html'));
-});
-
-app.use(errorHandler);
-
-server.listen(port, () => {
-  console.log(`Wordle server running on port ${port}`);
-});
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startServer();
+}
 
