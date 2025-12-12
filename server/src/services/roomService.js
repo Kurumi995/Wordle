@@ -66,6 +66,10 @@ const update = async (id, updateFields) => {
     delete updateFields.password;
   }
 
+  if (updateFields.isPublic === true) {
+    updateFields.hashedPassword = '';
+  }
+
   if (updateFields.isPublic === false) {
     const existingRoom = await getById(id);
     if (!updateFields.hashedPassword && !existingRoom.hashedPassword) {

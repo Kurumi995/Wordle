@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { userRouter } from './routes/userRoutes.js';
 import { roomRouter } from './routes/roomRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
@@ -11,6 +12,7 @@ import { initGameSocket } from './socket/gameSocket.js';
 
 dotenv.config();
 
+const serverPath = process.env.SERVER_DIR || import.meta.dirname;
 const port = process.env.PORT || 6790;
 const app = express();
 const server = http.createServer(app);
@@ -27,9 +29,22 @@ const io = new Server(server, {
 
 initGameSocket(io);
 
-app.use('/users', userRouter);
-app.use('/rooms', roomRouter);
-app.use('/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/rooms', roomRouter);
+app.use('/api/auth', authRouter);
+
+app.use(
+  express.static(
+    path.join(
+      serverPath, '../client/build')
+));
+
+
+app.get('/', (req, res) => {
+  res.sendFile(
+    path.join(
+      serverPath, '../client/build/index.html'));
+});
 
 app.use(errorHandler);
 

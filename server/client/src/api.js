@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:6790';
+const API_BASE = (process.env.REACT_APP_API_BASE || '').replace(/\/$/, '');
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('jwt');
@@ -7,7 +7,7 @@ const getAuthHeaders = () => {
 
 export const authAPI = {
   register: async (username, password) => {
-    const response = await fetch(`${API_BASE}/auth/register`, {
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -17,7 +17,7 @@ export const authAPI = {
   },
 
   login: async (username, password) => {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -47,19 +47,19 @@ export const authAPI = {
 
 export const userAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE}/users`);
+    const response = await fetch(`${API_BASE}/api/users`);
     if (!response.ok) throw new Error('Failed to fetch users');
     return response.json();
   },
 
   getById: async (id) => {
-    const response = await fetch(`${API_BASE}/users/${id}`);
+    const response = await fetch(`${API_BASE}/api/users/${id}`);
     if (!response.ok) throw new Error('Failed to fetch user');
     return response.json();
   },
 
   update: async (id, userData) => {
-    const response = await fetch(`${API_BASE}/users/${id}`, {
+    const response = await fetch(`${API_BASE}/api/users/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -74,19 +74,19 @@ export const userAPI = {
 
 export const roomAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE}/rooms`);
+    const response = await fetch(`${API_BASE}/api/rooms`);
     if (!response.ok) throw new Error('Failed to fetch rooms');
     return response.json();
   },
 
   getById: async (id) => {
-    const response = await fetch(`${API_BASE}/rooms/${id}`);
+    const response = await fetch(`${API_BASE}/api/rooms/${id}`);
     if (!response.ok) throw new Error('Failed to fetch room');
     return response.json();
   },
 
   create: async (roomData) => {
-    const response = await fetch(`${API_BASE}/rooms`, {
+    const response = await fetch(`${API_BASE}/api/rooms`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export const roomAPI = {
   },
 
   update: async (id, roomData) => {
-    const response = await fetch(`${API_BASE}/rooms/${id}`, {
+    const response = await fetch(`${API_BASE}/api/rooms/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export const roomAPI = {
   },
 
   delete: async (id) => {
-    const response = await fetch(`${API_BASE}/rooms/${id}`, {
+    const response = await fetch(`${API_BASE}/api/rooms/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -121,7 +121,7 @@ export const roomAPI = {
   },
 
   verifyPassword: async (id, password) => {
-    const response = await fetch(`${API_BASE}/rooms/${id}/verify`, {
+    const response = await fetch(`${API_BASE}/api/rooms/${id}/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })
@@ -131,7 +131,7 @@ export const roomAPI = {
   },
 
   submitGuess: async (id, guess) => {
-    const response = await fetch(`${API_BASE}/rooms/${id}/guess`, {
+    const response = await fetch(`${API_BASE}/api/rooms/${id}/guess`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ guess })
